@@ -27,7 +27,9 @@ def _price_request(item_id):
 def _get_item_id(item_name):
     resp = requests.get(FUZZWORKS_QUERY.format(item=item_name))
     if resp.status_code != 200:
-        raise ItemNotFoundException()
+        raise RuntimeError("An error occurred with the item type resolver")
+    elif resp.json()['typeName'] == 'bad item':
+        raise ValueError("The item name '%s' is not known to the item type resolver" % item_name)
     else:
         return resp.json()['typeID']
 
