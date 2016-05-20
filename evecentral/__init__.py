@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 import requests
 
-EVE_CENTRAL_QUERY="http://api.eve-central.com/api/marketstat?typeid={item}&regionlimit={region}"
+EVE_CENTRAL_QUERY="http://api.eve-central.com/api/marketstat"
 FUZZWORKS_QUERY="https://www.fuzzwork.co.uk/api/typeid.php?typename={item}"
 JITA_REGION_ID='10000002'
 
@@ -15,7 +15,7 @@ __all__ = ("market_stats",)
 
 PRICES = {}
 def _price_request(item_id, region):
-    shitxml = requests.get(EVE_CENTRAL_QUERY.format(item=item_id, region=region))
+    shitxml = requests.get(EVE_CENTRAL_QUERY, params={'typeid':item_id, 'regionlimit':region})
     rootshit = ET.fromstring(shitxml.text)
     item = rootshit[0][0]
     price = {
