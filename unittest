@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+import unittest
+import evecentral
+
+class TestEveCentralMethods(unittest.TestCase):
+    def test_unknown_item(self):
+        exception_thrown = False
+        try:
+            results = evecentral.get_price("PLUX")
+        except ValueError as e:
+            exception_thrown = True
+        self.assertTrue(exception_thrown)
+        self.assertEqual(e.message, "The item name 'PLUX' is not known to the item type resolver")
+
+if __name__ == '__main__':
+    unittest.main()
