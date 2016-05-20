@@ -14,6 +14,12 @@ class TestEveCentralMethods(unittest.TestCase):
         self.assertTrue(results.has_key('maxbuy'))
         self.assertTrue(results.has_key('minsell'))
 
+    def test_plex_price_multiple_regions(self):
+        results = evecentral.market_stats("30 Day Pilot's License Extension (PLEX)", [10000032, 10000002])
+        self.assertEqual(results['region'], [10000032, 10000002])
+        self.assertTrue(results.has_key('maxbuy'))
+        self.assertTrue(results.has_key('minsell'))
+
     def test_unknown_item(self):
         exception_thrown = False
         try:
