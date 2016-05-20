@@ -11,7 +11,7 @@ EVE_CENTRAL_QUERY="http://api.eve-central.com/api/marketstat?typeid={item}&regio
 FUZZWORKS_QUERY="https://www.fuzzwork.co.uk/api/typeid.php?typename={item}"
 JITA_REGION_ID='10000002'
 
-__all__ = ("get_price",)
+__all__ = ("market_stats",)
 
 PRICES = {}
 def _price_request(item_id, region):
@@ -36,7 +36,7 @@ def _get_item_id(item_name):
         return resp.json()['typeID']
 
 
-def get_price(item_name, region=JITA_REGION_ID):
+def market_stats(item_name, region=JITA_REGION_ID):
     if item_name in PRICES:
         item = PRICES[item_name]
         if item['cached_at'] + timedelta(hours=1) < datetime.utcnow():
