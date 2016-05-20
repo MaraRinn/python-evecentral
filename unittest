@@ -3,6 +3,17 @@ import unittest
 import evecentral
 
 class TestEveCentralMethods(unittest.TestCase):
+    def test_plex_price(self):
+        results = evecentral.get_price("30 Day Pilot's License Extension (PLEX)")
+        self.assertTrue(results.has_key('maxbuy'))
+        self.assertTrue(results.has_key('minsell'))
+
+    def test_plex_price_sinq_laison(self):
+        results = evecentral.get_price("30 Day Pilot's License Extension (PLEX)", 10000032)
+        self.assertEqual(results['region'], 10000032)
+        self.assertTrue(results.has_key('maxbuy'))
+        self.assertTrue(results.has_key('minsell'))
+
     def test_unknown_item(self):
         exception_thrown = False
         try:

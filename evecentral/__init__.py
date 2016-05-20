@@ -14,11 +14,13 @@ JITA_REGION_ID='10000002'
 __all__ = ("get_price",)
 
 PRICES = {}
-def _price_request(item_id):
-    shitxml = requests.get(EVE_CENTRAL_QUERY.format(item=item_id, region=JITA_REGION_ID))
+def _price_request(item_id, region):
+    shitxml = requests.get(EVE_CENTRAL_QUERY.format(item=item_id, region=region))
     rootshit = ET.fromstring(shitxml.text)
     item = rootshit[0][0]
-    price = {"maxbuy": float(item.find('buy').find('max').text),
+    price = {
+            "region": region,
+            "maxbuy": float(item.find('buy').find('max').text),
             "minsell": float(item.find('sell').find('min').text),
             "cached_at": datetime.utcnow()
     }
@@ -34,17 +36,18 @@ def _get_item_id(item_name):
         return resp.json()['typeID']
 
 
-def get_price(item_name):
+def get_price(item_name, region=JITA_REGION_ID):
     if item_name in PRICES:
         item = PRICES[item_name]
         if item['cached_at'] + timedelta(hours=1) < datetime.utcnow():
             return item
     item_id = _get_item_id(item_name)
-    item = _price_request(item_id)
+    item = _price_request(item_id, region)
     PRICES[item_id] = item
     #datetimes are not serializable and the user only cares about the price
     #so return a new dict w/o the cached_at time
     return {
+        "region": item['region'],
         "maxbuy": item['maxbuy'],
         "minsell": item['minsell']
     }
