@@ -17,24 +17,42 @@ __all__ = ("market_stats",)
 PRICES = {}
 ITEMIDS = {}
 
-def _price_request(item_id, region):
-    shitxml = requests.get(EVE_CENTRAL_QUERY, params={'typeid':item_id, 'regionlimit':region})
+def _price_request(item_id, region, minQ=None, usesystem=None, hours=None):
+    params = {'typeid':item_id}
+    if usesystem:
+        regionlimit = None
+        params['usesystem'] = usesystem
+    else:
+        params['regionlimit'] = region
+    if minQ:
+        params['minQ'] = minQ
+    if hours:
+        params['hours'] = hours
+
+    shitxml = requests.get(EVE_CENTRAL_QUERY, params=params)
     rootshit = ET.fromstring(shitxml.text)
     item = rootshit[0][0]
     price = {
-            "region": region,
             "maxbuy": float(item.find('buy').find('max').text),
             "minsell": float(item.find('sell').find('min').text),
-            "cached_at": datetime.utcnow()
+            "cached_at": datetime.utcnow(),
     }
+    if usesystem:
+        price['system'] = usesystem
+    else:
+        price['region'] = region
+    if minQ:
+        price['minQ'] = minQ
+    if hours:
+        price['hours'] = hours
     return price
 
-def _get_item_stats(item_id, region):
+def _get_item_stats(item_id, region, minQ=None, usesystem=None, hours=None):
     if item_id in PRICES:
         item = PRICES[item_id]
         if item['cached_at'] + timedelta(hours=1) < datetime.utcnow():
             return item
-    item = _price_request(item_id, region)
+    item = _price_request(item_id, region, minQ=minQ, usesystem=usesystem, hours=hours)
     PRICES[item_id] = item
     return item
 
@@ -52,14 +70,14 @@ def _get_item_id(item_name):
         item_id = ITEMIDS[item_name]
     return item_id
 
-def market_stats(item_name, region=JITA_REGION_ID):
+def market_stats(item_name, region=JITA_REGION_ID, minQ=None, usesystem=None, hours=None):
     if isinstance(item_name, collections.Sequence) and not isinstance(item_name, (str, unicode)):
         item_stats = {}
         for item in item_name:
             item_id = _get_item_id(item)
-            this_stats = _get_item_stats(item_id, region)
+            this_stats = _get_item_stats(item_id, region=region, minQ=minQ, usesystem=usesystem, hours=hours)
             item_stats[item_id] = this_stats
     else:
         item_id = _get_item_id(item_name)
-        item_stats = _get_item_stats(item_id, region)
+        item_stats = _get_item_stats(item_id, region=region, minQ=minQ, usesystem=usesystem, hours=hours)
     return item_stats
