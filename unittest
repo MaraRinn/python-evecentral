@@ -4,30 +4,30 @@ import evecentral
 
 class TestEveCentralMethods(unittest.TestCase):
     def test_plex_price(self):
-        results = evecentral.market_stats("30 Day Pilot's License Extension (PLEX)")
+        results = evecentral.market_stats("Tritanium")
         self.assertTrue('maxbuy' in results)
         self.assertTrue('minsell' in results)
 
     def test_plex_price_sinq_laison(self):
-        results = evecentral.market_stats("30 Day Pilot's License Extension (PLEX)", 10000032)
+        results = evecentral.market_stats("Tritanium", 10000032)
         self.assertEqual(results['region'], 10000032)
         self.assertTrue('maxbuy' in results)
         self.assertTrue('minsell' in results)
 
     def test_plex_price_multiple_regions(self):
-        results = evecentral.market_stats("30 Day Pilot's License Extension (PLEX)", [10000032, 10000002])
+        results = evecentral.market_stats("Tritanium", [10000032, 10000002])
         self.assertEqual(results['region'], [10000032, 10000002])
         self.assertTrue('maxbuy' in results)
         self.assertTrue('minsell' in results)
 
     def test_multiple_items(self):
-        results = evecentral.market_stats(["30 Day Pilot's License Extension (PLEX)", "Tritanium"], 10000032)
+        results = evecentral.market_stats(["Tritanium", "Pyroxeres"], 10000032)
         self.assertEqual(results[34]['region'], 10000032)
         self.assertTrue('maxbuy' in results[34])
         self.assertTrue('minsell' in results[34])
-        self.assertEqual(results[29668]['region'], 10000032)
-        self.assertTrue('maxbuy' in results[29668])
-        self.assertTrue('minsell' in results[29668])
+        self.assertEqual(results[1224]['region'], 10000032)
+        self.assertTrue('maxbuy' in results[1224])
+        self.assertTrue('minsell' in results[1224])
 
     def test_unknown_item(self):
         exception_thrown = False
@@ -37,6 +37,24 @@ class TestEveCentralMethods(unittest.TestCase):
             exception_thrown = True
         self.assertTrue(exception_thrown)
         self.assertEqual(e.message, "The item name 'PLUX' is not known to the item type resolver")
+
+    def test_minq_query(self):
+        results = evecentral.market_stats("Tritanium", minQ=200000)
+        self.assertTrue('maxbuy' in results)
+        self.assertTrue('minsell' in results)
+        self.assertEqual(results['minQ'], 200000)
+
+    def test_usesystem_query(self):
+        results = evecentral.market_stats("Tritanium", usesystem=30002659)
+        self.assertEqual(results['system'], 30002659)
+        self.assertTrue('maxbuy' in results)
+        self.assertTrue('minsell' in results)
+
+    def test_hours_query(self):
+        results = evecentral.market_stats("Tritanium", hours=3)
+        self.assertTrue('maxbuy' in results)
+        self.assertTrue('minsell' in results)
+        self.assertEqual(results['hours'], 3)
 
 if __name__ == '__main__':
     unittest.main()
